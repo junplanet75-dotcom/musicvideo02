@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>뮤직비디오 만들기</title>
+<style>
+:root{--ink:#18333b;--muted:#586b70;--teal:#006d66;--bg:#f7f8f5;--line:#d6e2df;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 system-ui,-apple-system,"Noto Sans KR",sans-serif}main{max-width:1120px;margin:auto;padding:48px 24px 80px}h1{font-size:clamp(32px,5vw,48px);line-height:1.25;margin:6px 0 16px;letter-spacing:-1px}h2{font-size:25px;margin:0 0 16px}h3{margin:0;font-size:19px}p{margin:8px 0 18px}.intro{max-width:760px}.eyebrow{color:var(--teal);font-weight:700;letter-spacing:2px;font-size:15px}.quiet{color:var(--muted);font-size:16px}section{margin-top:28px;padding:26px;background:var(--white);border:1px solid var(--line);border-radius:16px}fieldset{border:0;margin:0;padding:0;min-width:0}button,input,select{font:inherit}button,.download{border:1px solid var(--line);background:white;border-radius:9px;padding:10px 18px;min-height:46px;cursor:pointer;color:var(--ink);font-weight:600}button:hover{background:#ecf4f1}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #faa84b;outline-offset:3px}button:disabled{opacity:.45;cursor:not-allowed}.primary,.download{background:var(--teal);color:white;border-color:var(--teal);text-decoration:none;display:inline-block}.primary:hover,.download:hover{background:#00564f}.file-input{display:block;width:100%;border:1px dashed #a6bbb4;border-radius:10px;padding:18px;background:#f4f8f5}input[type=file]::file-selector-button{font:inherit;border:0;border-radius:6px;padding:9px 14px;background:#d9ebe4;color:var(--ink);margin-right:12px}select,input[type=number]{border:1px solid #aabfba;border-radius:6px;padding:6px 10px;background:white;color:var(--ink)}input[type=checkbox]{width:20px;height:20px;accent-color:var(--teal);vertical-align:middle}label{cursor:pointer}#photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:22px}.photo{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.photo img{display:block;width:100%;height:170px;object-fit:contain;background:#172c31}.photo-body{padding:14px}.filename{margin:3px 0 10px;overflow-wrap:anywhere;font-size:14px;color:var(--muted)}.effects{display:flex;gap:8px 16px;flex-wrap:wrap;margin:12px 0;font-size:16px}.controls{display:flex;gap:8px;margin-top:14px}.controls button{font-size:15px;padding:5px 10px;min-height:40px}.duration{width:70px}.settings,.actions{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:18px}.settings label{display:flex;align-items:center;gap:10px}.settings input[type=range]{width:170px;accent-color:var(--teal)}.empty{padding:20px 0;color:var(--muted);grid-column:1/-1}audio{width:min(100%,540px);margin-top:14px}video{display:block;width:100%;max-width:850px;height:auto;background:#101d20;border-radius:10px;margin:18px 0}progress{width:100%;height:18px;accent-color:var(--teal)}#status{min-height:36px;font-weight:600;margin-top:14px}#error{color:#a12626;white-space:pre-wrap}#result[hidden],#cancel[hidden],#musicPreview[hidden]{display:none}.result-note{font-size:16px;color:var(--muted)}.row{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.tip{border-left:4px solid #c1d6cf;padding-left:16px;font-size:16px}.summary{font-size:17px;color:var(--teal);font-weight:600}@media(max-width:760px){main{padding:28px 14px 60px}section{padding:20px 16px}#photos{grid-template-columns:repeat(2,minmax(0,1fr))}.photo img{height:140px}.settings{align-items:flex-start;flex-direction:column}}@media(max-width:480px){#photos{grid-template-columns:1fr}.photo img{height:180px}.actions button,.download{width:100%;text-align:center}}
+</style>
+</head>
+<body><main>
+<header class="intro"><div class="eyebrow">사진으로 만드는 작은 영화</div><h1>뮤직비디오 만들기</h1><p>사진을 고르고, 음악과 움직임을 더해 보세요.<br>완성한 영상은 MP4 파일로 저장할 수 있습니다.</p><p class="quiet">사진과 음악은 이 기기에서 처리합니다. 처음에는 사진 3~5장으로 시작해 보세요.</p></header>
+<fieldset id="editor">
+<section aria-labelledby="photosHeading"><div class="row"><h2 id="photosHeading">1. 사진과 장면</h2><span id="summary" class="summary">사진 0장</span></div><p class="quiet">사진을 여러 장 선택할 수 있습니다. 순서와 시간을 정하고, 사진마다 효과를 선택하세요.</p><input id="photoInput" class="file-input" type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="사진 여러 장 선택"><div id="photos"><p class="empty">아직 사진이 없습니다. 위에서 사진을 선택해 주세요.</p></div></section>
+<section aria-labelledby="musicHeading"><h2 id="musicHeading">2. 음악</h2><input id="musicInput" class="file-input" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg" aria-label="음악 파일 선택"><p id="musicName" class="quiet">사용할 음악 파일을 선택해 주세요.</p><audio id="musicPreview" controls hidden></audio><div class="settings"><label for="volume">음악 볼륨 <input id="volume" type="range" min="0" max="100" value="80"><output id="volumeValue">80%</output></label></div><p class="quiet">영상보다 짧은 음악은 반복하고, 긴 음악은 영상 길이에 맞춥니다.</p></section>
+<section aria-labelledby="createHeading"><h2 id="createHeading">3. 영상 만들기</h2><div class="settings"><label for="quality">화질 <select id="quality"><option value="360">360p · 빠른 실습</option><option value="720">720p · 선명한 영상</option></select></label><span class="quiet">가로 16:9 화면</span></div><p class="tip">클로즈업은 사진을 천천히 확대합니다. 페이드인은 어두운 화면에서 밝아지고, 페이드아웃은 장면 끝이 서서히 어두워집니다.</p><p class="quiet">컴퓨터의 Chrome 또는 Edge에서 사용하는 것을 권장합니다. 사진 수와 화질에 따라 제작 시간이 달라집니다.</p></section>
+</fieldset>
+<section aria-label="영상 생성 상태"><div class="actions"><button id="create" class="primary" type="button">MP4 영상 만들기</button><button id="cancel" type="button" hidden>만들기 취소</button></div><p id="status" role="status" aria-live="polite">사진과 음악을 선택하면 준비가 끝납니다.</p><progress id="progress" max="100" value="0" aria-label="영상 제작 진행률"></progress><p id="error" role="alert"></p><div id="result" hidden><h2>완성한 뮤직비디오</h2><video id="video" controls playsinline></video><p id="resultInfo" class="result-note"></p><a id="download" class="download" download="music-video.mp4">MP4 영상 다운로드</a></div></section>
+<footer class="quiet" style="margin-top:24px">창을 닫으면 선택한 작업 내용은 사라집니다. 완성한 영상은 다운로드해 보관하세요.</footer>
+</main>
+<script src="./ffmpeg.js"></script><script src="./video-commands.js"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), V=VideoCommands;
+let scenes=[],music=null,musicURL=null,outputURL=null,ffmpeg=null,ready=false,busy=false,aborter=null,serial=0;
+let stageStart=0,stageSpan=0,lastLogs=[];
+const coreURLs=[];
+function status(message,value){$('status').textContent=message;if(value!==undefined)$('progress').value=Math.max(0,Math.min(100,value));}
+function updateSummary(){const seconds=scenes.reduce((n,s)=>n+Number(s.seconds),0);$('summary').textContent=`사진 ${scenes.length}장 · 총 ${seconds.toFixed(1).replace('.0','')}초`;}
+function renderPhotos(){
+ const host=$('photos');host.replaceChildren();
+ if(!scenes.length){const empty=document.createElement('p');empty.className='empty';empty.textContent='아직 사진이 없습니다. 위에서 사진을 선택해 주세요.';host.append(empty);}
+ scenes.forEach((scene,index)=>{
+  const card=document.createElement('article');card.className='photo';
+  const img=document.createElement('img');img.src=scene.url;img.alt=`${index+1}번째 사진 ${scene.file.name}`;card.append(img);
+  const box=document.createElement('div');box.className='photo-body';card.append(box);
+  const h=document.createElement('h3');h.textContent=`장면 ${index+1}`;box.append(h);
+  const name=document.createElement('p');name.className='filename';name.textContent=scene.file.name;box.append(name);
+  const durationLabel=document.createElement('label');durationLabel.textContent='장면 길이 ';
+  const duration=document.createElement('input');duration.className='duration';duration.type='number';duration.min='1';duration.max='30';duration.step='0.5';duration.value=scene.seconds;duration.setAttribute('aria-label',`${index+1}번째 장면 길이(초)`);
+  duration.addEventListener('change',()=>{try{scene.seconds=V.validSeconds(duration.value);duration.value=scene.seconds;updateSummary();}catch(e){duration.value=scene.seconds;$('error').textContent=e.message;}});
+  durationLabel.append(duration,document.createTextNode(' 초'));box.append(durationLabel);
+  const effects=document.createElement('div');effects.className='effects';
+  for(const [key,label]of [['zoom','클로즈업'],['fadeIn','페이드인'],['fadeOut','페이드아웃']]){
+   const lab=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.checked=scene[key];check.addEventListener('change',()=>scene[key]=check.checked);lab.append(check,document.createTextNode(' '+label));effects.append(lab);
+  }box.append(effects);
+  const controls=document.createElement('div');controls.className='controls';
+  function button(label,fn,disabled=false){const b=document.createElement('button');b.type='button';b.textContent=label;b.disabled=disabled;b.addEventListener('click',fn);controls.append(b);}
+  button('앞으로',()=>{[scenes[index-1],scenes[index]]=[scenes[index],scenes[index-1]];renderPhotos();},index===0);
+  button('뒤로',()=>{[scenes[index+1],scenes[index]]=[scenes[index],scenes[index+1]];renderPhotos();},index===scenes.length-1);
+  button('삭제',()=>{URL.revokeObjectURL(scene.url);scenes.splice(index,1);renderPhotos();});box.append(controls);host.append(card);
+ });updateSummary();
+}
+$('photoInput').addEventListener('change',e=>{
+ $('error').textContent='';
+ for(const file of e.target.files){if(!/^image\/(jpeg|png|webp)$/.test(file.type)){ $('error').textContent='사진은 JPG, PNG, WebP 형식을 사용해 주세요.';continue;}scenes.push({file,url:URL.createObjectURL(file),seconds:3,zoom:true,fadeIn:false,fadeOut:false});}
+ e.target.value='';renderPhotos();
+});
+$('musicInput').addEventListener('change',e=>{
+ if(!e.target.files[0])return;
+ music=e.target.files[0];if(musicURL)URL.revokeObjectURL(musicURL);musicURL=URL.createObjectURL(music);$('musicPreview').src=musicURL;$('musicPreview').hidden=false;$('musicName').textContent=music.name;
+});
+$('volume').addEventListener('input',()=>$('volumeValue').textContent=$('volume').value+'%');
+async function blobURL(url,type,signal,onProgress){
+ const response=await fetch(url,{signal});if(!response.ok)throw new Error('영상 도구를 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.');
+ const reader=response.body?.getReader();let blob;
+ if(reader){const chunks=[];let size=0;const total=Number(response.headers.get('content-length'));for(;;){const {done,value}=await reader.read();if(done)break;chunks.push(value);size+=value.length;if(onProgress)onProgress(size,total);}blob=new Blob(chunks,{type});}else blob=await response.blob();
+ const result=URL.createObjectURL(blob);coreURLs.push(result);return result;
+}
+async function loadEngine(signal,run){
+ if(ready)return;
+ if(!window.FFmpegWASM)throw new Error('영상 도구 파일을 찾지 못했습니다. index.html과 함께 ffmpeg.js 및 814.ffmpeg.js를 올렸는지 확인해 주세요.');
+ ffmpeg=new FFmpegWASM.FFmpeg();lastLogs=[];
+ ffmpeg.on('log',({message})=>{lastLogs.push(message);if(lastLogs.length>20)lastLogs.shift();});
+ ffmpeg.on('progress',({progress})=>{if(busy&&stageSpan)$('progress').value=Math.min(99,stageStart+Math.max(0,Math.min(1,progress))*stageSpan);});
+ status('영상 도구를 불러오는 중입니다. 처음에는 약 31MB를 받습니다.',1);
+ const base='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
+ const coreURL=await blobURL(base+'/ffmpeg-core.js','text/javascript',signal);
+ const wasmURL=await blobURL(base+'/ffmpeg-core.wasm','application/wasm',signal,(bytes,total)=>{
+  if(run!==serial)return;const mb=(bytes/1048576).toFixed(1);status(`영상 도구를 불러오는 중입니다. ${mb}MB`,total?Math.min(9,1+8*bytes/total):3);
+ });
+ if(signal.aborted||run!==serial)throw new DOMException('취소됨','AbortError');
+ await ffmpeg.load({coreURL,wasmURL});
+ if(run!==serial)throw new DOMException('취소됨','AbortError');ready=true;
+}
+async function renderSceneFrames(scene,quality,index,run){
+ const image=new Image();image.src=scene.url;await image.decode();
+ const [w,h]=V.dimensions(quality),canvas=document.createElement('canvas'),out=document.createElement('canvas');canvas.width=w*2;canvas.height=h*2;out.width=w;out.height=h;
+ const context=canvas.getContext('2d'),finalContext=out.getContext('2d');
+ if(!context||!finalContext)throw new Error('이 브라우저에서 사진을 처리할 수 없습니다.');
+ finalContext.imageSmoothingEnabled=true;finalContext.imageSmoothingQuality='high';
+ const count=Math.round(V.validSeconds(scene.seconds)*V.FPS);
+ try{
+  for(let frame=0;frame<count;frame++){
+   if(run!==serial)throw new DOMException('취소됨','AbortError');
+   V.drawPhotoFrame(context,image,scene,frame,canvas.width,canvas.height);
+   finalContext.drawImage(canvas,0,0,w,h);
+   const blob=await new Promise(resolve=>out.toBlob(resolve,'image/jpeg',.97));
+   if(!blob)throw new Error('사진을 변환하지 못했습니다. 다른 JPG 또는 PNG 사진을 선택해 주세요.');
+   if(run!==serial)throw new DOMException('취소됨','AbortError');
+   await ffmpeg.writeFile(`frame${index}_${String(frame).padStart(4,'0')}.jpg`,new Uint8Array(await blob.arrayBuffer()));
+   $('progress').value=stageStart+stageSpan*.5*(frame+1)/count;
+  }
+ }finally{canvas.width=canvas.height=out.width=out.height=0;}
+ return count;
+}
+async function runCommand(args){const code=await ffmpeg.exec(args);if(code!==0)throw new Error('영상 변환을 완료하지 못했습니다. 사진·음악 형식을 확인하고, 360p 또는 더 적은 사진으로 다시 시도해 주세요.');}
+function setBusy(value){busy=value;$('editor').disabled=value;$('create').disabled=value;$('cancel').hidden=!value;}
+function disposeEngine(){try{ffmpeg?.terminate();}catch(e){}ffmpeg=null;ready=false;coreURLs.splice(0).forEach(url=>URL.revokeObjectURL(url));}
+async function clearWork(){if(!ready)return;try{const files=await ffmpeg.listDir('/');for(const f of files){if(!f.isDir&&(/^(frame\d+_\d+\.jpg|part\d+\.mp4|parts\.txt|music\.input|music-video\.mp4)$/.test(f.name)))await ffmpeg.deleteFile(f.name);}}catch(e){disposeEngine();}}
+$('create').addEventListener('click',async()=>{
+ $('error').textContent='';
+ if(!scenes.length){$('error').textContent='먼저 사진을 한 장 이상 선택해 주세요.';return;}
+ if(!music){$('error').textContent='음악 파일을 선택해 주세요.';return;}
+ if(location.protocol==='file:'){ $('error').textContent='이 파일은 웹주소에서 실행해야 합니다. 파일들을 GitHub Pages에 게시한 다음 그 주소에서 열어 주세요.';return;}
+ if(typeof WebAssembly==='undefined'||typeof Worker==='undefined'){ $('error').textContent='이 브라우저에서 영상을 만들 수 없습니다. 최신 Chrome 또는 Edge에서 열어 주세요.';return;}
+ $('musicPreview').pause();$('video').pause();setBusy(true);aborter=new AbortController();const run=++serial;
+ const selected=scenes.map(s=>({...s})),quality=$('quality').value,volume=Number($('volume').value)/100;
+ try{
+  await loadEngine(aborter.signal,run);await clearWork();if(!ready)await loadEngine(aborter.signal,run);
+  for(let i=0;i<selected.length;i++){
+   if(run!==serial)throw new DOMException('취소됨','AbortError');
+   stageStart=10+i*70/selected.length;stageSpan=70/selected.length;
+   status(`${i+1}/${selected.length}번째 사진에 효과를 적용하고 있습니다.`,stageStart);
+   const count=await renderSceneFrames(selected[i],quality,i,run);
+   if(run!==serial)throw new DOMException('취소됨','AbortError');
+   stageStart+=stageSpan*.5;stageSpan*=.5;
+   await runCommand(V.sceneArgs(i,selected[i],quality));
+   for(let frame=0;frame<count;frame++)await ffmpeg.deleteFile(`frame${i}_${String(frame).padStart(4,'0')}.jpg`);
+  }
+  stageStart=80;stageSpan=18;status('장면을 연결하고 음악을 넣고 있습니다.',80);
+  await ffmpeg.writeFile('parts.txt',new TextEncoder().encode(selected.map((_,i)=>`file 'part${i}.mp4'`).join('\n')));
+  await ffmpeg.writeFile('music.input',new Uint8Array(await music.arrayBuffer()));await runCommand(V.finalArgs(selected,volume));
+  const data=await ffmpeg.readFile('music-video.mp4');if(!(data instanceof Uint8Array)||!data.length)throw new Error('완성 파일이 비어 있습니다. 다시 시도해 주세요.');
+  if(run!==serial)throw new DOMException('취소됨','AbortError');
+  const blob=new Blob([data],{type:'video/mp4'});if(outputURL)URL.revokeObjectURL(outputURL);outputURL=URL.createObjectURL(blob);
+  $('video').src=outputURL;$('video').load();$('download').href=outputURL;$('result').hidden=false;
+  const seconds=selected.reduce((n,s)=>n+V.validSeconds(s.seconds),0);$('resultInfo').textContent=`사진 ${selected.length}장 · ${seconds.toFixed(1).replace('.0','')}초 · ${(blob.size/1048576).toFixed(1)}MB · MP4`;
+  status('완성했습니다! 영상을 확인하고 다운로드해 주세요.',100);await clearWork();
+ }catch(e){
+  if(run!==serial||aborter?.signal.aborted){status('만들기를 취소했습니다. 설정을 바꾸고 다시 시작할 수 있습니다.',0);}
+  else{$('error').textContent=e.message||'영상을 만들지 못했습니다. 다시 시도해 주세요.';status('제작을 완료하지 못했습니다.',0);console.error(e);disposeEngine();}
+ }finally{stageSpan=0;setBusy(false);aborter=null;}
+});
+$('cancel').addEventListener('click',()=>{serial++;aborter?.abort();disposeEngine();$('cancel').disabled=true;status('취소하고 있습니다.',0);setTimeout(()=>$('cancel').disabled=false,500);});
+window.addEventListener('beforeunload',()=>{scenes.forEach(s=>URL.revokeObjectURL(s.url));if(musicURL)URL.revokeObjectURL(musicURL);if(outputURL)URL.revokeObjectURL(outputURL);disposeEngine();});
+</script>
+</body></html>
